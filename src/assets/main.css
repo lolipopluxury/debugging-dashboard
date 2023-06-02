@@ -1,0 +1,9 @@
+html {
+  font-size: 110.4px;
+}
+
+#app {
+  width: calc(100vw - 16px);
+  height: calc(100vh - 16px);
+  font-size: 0.16rem;
+}
