@@ -4,7 +4,8 @@ export const menuConfig = [
         children: [
             {
                 label: '测试数据概览',
-                name: 'tbs-overview'
+                name: 'tbs-overview',
+                path: '/tbs-overview'
             }
         ]
     }

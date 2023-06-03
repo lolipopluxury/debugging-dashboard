@@ -1,5 +1,5 @@
 <template>
-  <ElMenu class="app-menu">
+  <ElMenu class="app-menu" router unique-opened :default-openeds="defaultOpeneds">
     <ElSubMenu
       v-for="(item, index) in menuConfig"
       :key="index"
@@ -10,29 +10,17 @@
         <ElIcon :size="20"> <Edit /> </ElIcon>
         <span>{{ item.label }}</span>
       </template>
-      <ElMenuItem
-        v-for="(child, i) in item.children"
-        :key="i"
-        :index="`${index}-${i}`"
-        :title="child.label"
-        @click="onMenuClick(child.name)"
-        >{{ child.label }}</ElMenuItem
-      >
+      <ElMenuItem v-for="(child, i) in item.children" :key="i" :index="child.path">
+        {{ child.label }}
+      </ElMenuItem>
     </ElSubMenu>
   </ElMenu>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
 import { menuConfig } from '../config/menu'
 
-const router = useRouter()
-
-const onMenuClick = (name) => {
-  router.push({
-    name
-  })
-}
+const defaultOpeneds = ['0']
 </script>
 
 <style lang="less" scoped>
