@@ -1,15 +1,14 @@
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import configBase from './build/vite.base';
+import configDev from './build/vite.dev';
+import configProd from './build/vite.prod';
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
+const configs = {
+  'serve': () => Object.assign(configBase, configDev),
+  'build': () => Object.assign(configBase, configProd),
+}
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [vue(), vueJsx()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
+export default defineConfig(config => {
+  const { command = 'build' || 'serve' } = config
+  return configs[command]();
 })

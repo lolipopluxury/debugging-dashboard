@@ -1,7 +1,9 @@
 <template>
   <ElHeader class="appHeader">H5 测试数据档案馆</ElHeader>
   <ElContainer>
-    <ElAside width="200px">Aside</ElAside>
+    <ElAside width="200px">
+      <MenuAside />
+    </ElAside>
     <ElContainer>
       <ElMain>
         <RouterView />
@@ -9,6 +11,12 @@
     </ElContainer>
   </ElContainer>
 </template>
+
+<script setup>
+import { defineAsyncComponent } from 'vue'
+
+const MenuAside = defineAsyncComponent(() => import('./components/MenuAside.vue'))
+</script>
 
 <style lang="less" scoped>
 .appHeader {
