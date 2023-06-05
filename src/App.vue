@@ -5,7 +5,7 @@
       <MenuAside />
     </ElAside>
     <ElContainer>
-      <ElMain>
+      <ElMain class="work-space">
         <RouterView />
       </ElMain>
     </ElContainer>
@@ -26,5 +26,8 @@ const MenuAside = defineAsyncComponent(() => import('./components/MenuAside.vue'
   font-size: 0.24rem;
   color: #fff;
   background: linear-gradient(135deg, #59ae6a, #48ae96, #60d9ec, #65a5d5, #9491e0, #c382a4);
+}
+.work-space {
+  max-height: calc(100vh - 76px);
 }
 </style>

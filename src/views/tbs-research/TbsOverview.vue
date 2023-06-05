@@ -1,18 +1,16 @@
 <template>
-  <ElTabs v-model="tabActive" type="border-card">
+  <ElTabs v-model="tabActive">
     <ElTabPane label="CSS" name="css">
       <ElTable :data="displayDataCSS" border style="width: 100%">
-        <ElTableColumn prop="property" label="Property" width="180" />
-        <ElTableColumn label="Data With TBS">
+        <ElTableColumn prop="property" label="属性" width="180" />
+        <ElTableColumn label="TBS内核">
           <template #default="scope">
-            <ElText type="primary">当前数据量：{{ scope.row.dataWithTBS.length }}</ElText>
-            <p v-for="item in scope.row.dataWithTBS" :key="item._id">{{ item }}</p>
+            <PropertyDetail :data="scope.row.dataWithTBS" />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="Data Without TBS">
+        <ElTableColumn label="Native内核">
           <template #default="scope">
-            <ElText type="primary">当前数据量：{{ scope.row.dataWithoutTBS.length }}</ElText>
-            <p v-for="item in scope.row.dataWithoutTBS" :key="item._id">{{ item }}</p>
+            <PropertyDetail :data="scope.row.dataWithoutTBS" />
           </template>
         </ElTableColumn>
       </ElTable>
@@ -20,16 +18,14 @@
     <ElTabPane label="ES6" name="js">
       <ElTable :data="displayDataES6" border style="width: 100%">
         <ElTableColumn prop="property" label="Property" width="180" />
-        <ElTableColumn label="Data With TBS">
+        <ElTableColumn label="TBS内核">
           <template #default="scope">
-            <ElText type="primary">当前数据量：{{ scope.row.dataWithTBS.length }}</ElText>
-            <p v-for="item in scope.row.dataWithTBS" :key="item._id">{{ item }}</p>
+            <PropertyDetail :data="scope.row.dataWithTBS" />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="Data Without TBS">
+        <ElTableColumn label="Native内核">
           <template #default="scope">
-            <ElText type="primary">当前数据量：{{ scope.row.dataWithoutTBS.length }}</ElText>
-            <p v-for="item in scope.row.dataWithoutTBS" :key="item._id">{{ item }}</p>
+            <PropertyDetail :data="scope.row.dataWithoutTBS" />
           </template>
         </ElTableColumn>
       </ElTable>
@@ -38,9 +34,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import { apiFetchTbsData } from '../../services'
 import { cssCategory, es6Category } from '../../models/tbs/index'
+
+const PropertyDetail = defineAsyncComponent(() => import('./components/PropertyDetail.vue'))
 
 const tabActive = ref('css')
 
