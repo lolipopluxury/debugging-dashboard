@@ -9,8 +9,8 @@ const router = createRouter({
       component: () => import('../views/tbs-research/TbsOverview.vue')
     },
     {
-      path: '/coding-lab',
-      name: 'coding-lab',
+      path: '/coding-draft',
+      name: 'coding-draft',
       component: () => import('../views/coding-lab/CodingDraft.vue')
     }
   ]

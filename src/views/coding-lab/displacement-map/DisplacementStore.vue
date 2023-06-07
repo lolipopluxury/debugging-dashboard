@@ -1,6 +1,6 @@
 <template>
   <div class="coding-draft">
-    <img class="target" src="./displacement-map/ripple.jpg" />
+    <img class="target" src="./112.jpeg" />
     <br />
     <svg width="500" height="312">
       <defs>
