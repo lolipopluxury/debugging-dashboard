@@ -2,7 +2,7 @@
   <ElTabs v-model="tabActive">
     <ElTabPane label="CSS" name="css">
       <ElTable :data="displayDataCSS" border style="width: 100%">
-        <ElTableColumn prop="property" label="属性" width="180" />
+        <ElTableColumn prop="property" label="属性" width="260" />
         <ElTableColumn label="TBS内核">
           <template #default="scope">
             <PropertyDetail :data="scope.row.dataWithTBS" />
@@ -17,7 +17,7 @@
     </ElTabPane>
     <ElTabPane label="ES6" name="js">
       <ElTable :data="displayDataES6" border style="width: 100%">
-        <ElTableColumn prop="property" label="Property" width="180" />
+        <ElTableColumn prop="property" label="Property" width="260" />
         <ElTableColumn label="TBS内核">
           <template #default="scope">
             <PropertyDetail :data="scope.row.dataWithTBS" />
