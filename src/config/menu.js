@@ -6,6 +6,11 @@ export const menuConfig = [
                 label: '测试数据概览',
                 name: 'tbs-overview',
                 path: '/tbs-overview'
+            },
+            {
+                label: '备忘录',
+                name: 'tbs-memo',
+                path: '/tbs-memo'
             }
         ]
     },
