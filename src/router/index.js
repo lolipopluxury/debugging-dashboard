@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/tbs-research/TbsMemo.vue')
     },
     {
+      path: '/tbs-performance',
+      name: 'tbs-performance',
+      component: () => import('../views/tbs-research/TBSPerformance.vue')
+    },
+    {
       path: '/coding-draft',
       name: 'coding-draft',
       component: () => import('../views/coding-lab/CodingDraft.vue')

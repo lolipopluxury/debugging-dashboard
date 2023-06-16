@@ -8,10 +8,15 @@ export const menuConfig = [
                 path: '/tbs-overview'
             },
             {
+                label: '性能数据概览',
+                name: 'tbs-performance',
+                path: '/tbs-performance'
+            },
+            {
                 label: '备忘录',
                 name: 'tbs-memo',
                 path: '/tbs-memo'
-            }
+            },
         ]
     },
     {
