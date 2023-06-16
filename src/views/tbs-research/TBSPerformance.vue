@@ -219,10 +219,6 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
-.line-chart {
-    width: 8rem;
-    height: 4rem;
-}
 .chart-wrapper {
     height: 3.6rem;
     display: flex;
