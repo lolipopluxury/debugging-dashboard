@@ -1,5 +1,4 @@
 <template>
-    <!-- <div class="line-chart" ref="chart"></div> -->
     <template v-for="brand in brandCategory" :key="brand">
         <h3>
             {{ brand }}
@@ -70,19 +69,27 @@ const titleTextMap = {
 
 const fetchData = async () => {
     const rawData = await apiFetchTbsData({ params: { category: 'performance', pageSize, page } })
+    console.log(resource.value)
     rawData.list.forEach((item) => {
+        if (!resource.value[`${item.brandName}(${item.androidVersion})`]) return
         item.isTbs
-            ? (resource.value[item.brandName][item.step - 1].dataWithTBS = item)
-            : (resource.value[item.brandName][item.step - 1].dataWithoutTBS = item)
+            ? (resource.value[`${item.brandName}(${item.androidVersion})`][
+                  item.step - 1
+              ].dataWithTBS = item)
+            : (resource.value[`${item.brandName}(${item.androidVersion})`][
+                  item.step - 1
+              ].dataWithoutTBS = item)
     })
     onChartRender()
 }
 
 const onChartOptionBuild = (type, data, step) => {
-    const performanceWithTbs = JSON.parse(data.dataWithTBS.performance)
-    const performanceWithoutTbs = JSON.parse(data.dataWithoutTBS.performance)
-    // console.log('performanceWithTbs', step, performanceWithTbs)
-    // console.log('performanceWithoutTbs', step, performanceWithoutTbs)
+    const performanceWithTbs = data.dataWithTBS.performance
+        ? JSON.parse(data.dataWithTBS.performance)
+        : null
+    const performanceWithoutTbs = data.dataWithoutTBS.performance
+        ? JSON.parse(data.dataWithoutTBS.performance)
+        : null
     const title = type
         ? {
               text: titleTextMap[step]
@@ -94,48 +101,70 @@ const onChartOptionBuild = (type, data, step) => {
             ? [
                   {
                       dimension: 'DOM',
-                      TBS: (
-                          performanceWithTbs.domContentLoadedEventEnd -
-                          performanceWithTbs.domInteractive
-                      ).toFixed(2),
-                      Native: (
-                          performanceWithoutTbs.domContentLoadedEventEnd -
-                          performanceWithoutTbs.domInteractive
-                      ).toFixed(2)
+                      TBS: performanceWithTbs
+                          ? (
+                                performanceWithTbs.domContentLoadedEventEnd -
+                                performanceWithTbs.domInteractive
+                            ).toFixed(2)
+                          : 0,
+                      Native: performanceWithoutTbs
+                          ? (
+                                performanceWithoutTbs.domContentLoadedEventEnd -
+                                performanceWithoutTbs.domInteractive
+                            ).toFixed(2)
+                          : 0
                   },
                   {
                       dimension: 'Request',
-                      TBS: (
-                          performanceWithTbs.responseEnd - performanceWithTbs.requestStart
-                      ).toFixed(2),
-                      Native: (
-                          performanceWithoutTbs.responseEnd - performanceWithoutTbs.requestStart
-                      ).toFixed(2)
+                      TBS: performanceWithTbs
+                          ? (
+                                performanceWithTbs.responseEnd - performanceWithTbs.requestStart
+                            ).toFixed(2)
+                          : 0,
+                      Native: performanceWithoutTbs
+                          ? (
+                                performanceWithoutTbs.responseEnd -
+                                performanceWithoutTbs.requestStart
+                            ).toFixed(2)
+                          : 0
                   },
                   {
                       dimension: 'Connect',
-                      TBS: (performanceWithTbs.connectEnd - performanceWithTbs.fetchStart).toFixed(
-                          2
-                      ),
-                      Native: (
-                          performanceWithoutTbs.connectEnd - performanceWithoutTbs.fetchStart
-                      ).toFixed(2)
+                      TBS: performanceWithTbs
+                          ? (performanceWithTbs.connectEnd - performanceWithTbs.fetchStart).toFixed(
+                                2
+                            )
+                          : 0,
+                      Native: performanceWithoutTbs
+                          ? (
+                                performanceWithoutTbs.connectEnd - performanceWithoutTbs.fetchStart
+                            ).toFixed(2)
+                          : 0
                   }
               ]
             : [
                   {
                       dimension: 'Total',
-                      TBS: performanceWithTbs.domContentLoadedEventEnd.toFixed(2),
-                      Native: performanceWithoutTbs.domContentLoadedEventEnd.toFixed(2)
+                      TBS: performanceWithTbs
+                          ? performanceWithTbs.domContentLoadedEventEnd.toFixed(2)
+                          : 0,
+                      Native: performanceWithoutTbs
+                          ? performanceWithoutTbs.domContentLoadedEventEnd.toFixed(2)
+                          : 0
                   },
                   {
                       dimension: 'Pre-DOM',
-                      TBS: (
-                          performanceWithTbs.domInteractive - performanceWithTbs.responseEnd
-                      ).toFixed(2),
-                      Native: (
-                          performanceWithoutTbs.domInteractive - performanceWithoutTbs.responseEnd
-                      ).toFixed(2)
+                      TBS: performanceWithTbs
+                          ? (
+                                performanceWithTbs.domInteractive - performanceWithTbs.responseEnd
+                            ).toFixed(2)
+                          : 0,
+                      Native: performanceWithoutTbs
+                          ? (
+                                performanceWithoutTbs.domInteractive -
+                                performanceWithoutTbs.responseEnd
+                            ).toFixed(2)
+                          : 0
                   }
               ]
     }
