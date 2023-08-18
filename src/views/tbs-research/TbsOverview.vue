@@ -38,6 +38,27 @@ import { defineAsyncComponent, ref } from 'vue'
 import { apiFetchTbsData } from '../../services'
 import { cssCategory, es6Category } from '../../models/tbs/index'
 
+// let result = 0
+
+// setTimeout(() => {
+//     const record = observer.takeRecords()
+
+//     console.log('record: ', record)
+// }, 6000)
+
+var observer = new PerformanceObserver(function (list, obj) {
+    var entries = list.getEntries()
+    for (var i = 0; i < entries.length; i++) {
+        // Process "mark" and "frame" events
+    }
+})
+observer.observe({ entryTypes: ['longtask', 'frame'] })
+var records = observer.takeRecords()
+console.log(records)
+// console.log(records[0].name)
+// console.log(records[0].startTime)
+// console.log(records[0].duration)
+
 const PropertyDetail = defineAsyncComponent(() => import('./components/PropertyDetail.vue'))
 
 const tabActive = ref('css')

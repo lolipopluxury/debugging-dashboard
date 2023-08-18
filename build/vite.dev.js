@@ -1,7 +1,8 @@
 import { defineConfig } from "vite";
 import { getLocalIP } from './utils'
 
-const host = getLocalIP()
+// const host = getLocalIP()
+const host = '127.0.0.1'
 
 let port = 8090
 
