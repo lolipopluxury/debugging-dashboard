@@ -1,30 +1,41 @@
 <template>
-    <template v-for="brand in brandCategory" :key="brand">
-        <h3>
-            {{ brand }}
-            <span v-if="resource[brand][0].dataWithTBS && resource[brand][0].dataWithoutTBS">
-                : Android {{ resource[brand][0]?.dataWithoutTBS.androidVersion }} -
-                {{ resource[brand][0]?.dataWithTBS.chromeVersion }} |
-                {{ resource[brand][0]?.dataWithoutTBS.chromeVersion }}
-            </span>
-        </h3>
-        <div class="chart-wrapper">
-            <div class="chart" :id="`chart-${brand}-1`"></div>
-            <div class="chart" :id="`chart-${brand}-2`"></div>
-            <div class="chart" :id="`chart-${brand}-3`"></div>
-        </div>
-        <div class="chart-wrapper total">
-            <div class="chart" :id="`chart-${brand}-1-total`"></div>
-            <div class="chart" :id="`chart-${brand}-2-total`"></div>
-            <div class="chart" :id="`chart-${brand}-3-total`"></div>
-        </div>
-    </template>
+    <el-select v-model="currentDevice" filterable placeholder="请选择设备" size="large" @change="onChartRender">
+        <el-option
+            v-for="item in deviceOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+        />
+    </el-select>
+    <h3>
+        {{ brandDisplay }}
+        <span v-if="resource[brandDisplay][0].dataWithTBS && resource[brandDisplay][0].dataWithoutTBS">
+            : Android {{ resource[brandDisplay][0]?.dataWithoutTBS.androidVersion }} -
+            {{ resource[brandDisplay][0]?.dataWithTBS.chromeVersion }} |
+            {{ resource[brandDisplay][0]?.dataWithoutTBS.chromeVersion }}
+        </span>
+    </h3>
+    <div class="chart-wrapper">
+        <h2>首次加载</h2>
+        <div class="chart" :id="`chart-1`"></div>
+        <div class="chart total" :id="`chart-1-total`"></div>
+    </div>
+    <div class="chart-wrapper">
+        <h2>二次加载</h2>
+        <div class="chart" :id="`chart-2`"></div>
+        <div class="chart total" :id="`chart-2-total`"></div>
+    </div>
+    <div class="chart-wrapper">
+        <h2>三次加载</h2>
+        <div class="chart" :id="`chart-3`"></div>
+        <div class="chart total" :id="`chart-3-total`"></div>
+    </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { apiFetchTbsData } from '../../services'
-import { brandCategory } from '../../models/tbs/index'
+import { brandCategory, deviceOptions } from '../../models/tbs/index'
 import * as echarts from 'echarts'
 
 const page = 1
@@ -33,43 +44,55 @@ const pageSize = 1000000
 
 const resource = ref({})
 
+const currentDevice = ref(0)
+
+const brandDisplay = computed(() => brandCategory[currentDevice.value])
+
+const chartInstance = {
+    chart1: null,
+    chart2: null,
+    chart3: null,
+}
+
+const chartInstanceTotal = {
+    chart1: null,
+    chart2: null,
+    chart3: null,
+}
+
 const basisChartOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
     legendHoverLink: true,
-    legend: {
-        textStyle: {
-            fontSize: 10
-        },
-        itemHeight: 10,
-        orient: 'vertical',
-        right: 0,
-        top: 30,
-        bottom: 30
+    legend: {},
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
     },
     label: {
         show: true
-        // color: '#fff'
     },
     xAxis: {
         type: 'value'
     },
     yAxis: {
-        type: 'category'
-    },
-    series: [
-        { type: 'bar', color: '#87e8de' },
-        { type: 'bar', color: '#d3adf7' }
-    ]
+        type: 'category',
+        data: ['Native', 'TBS']
+    }
 }
 
-const titleTextMap = {
-    1: '首次加载',
-    2: '二次加载',
-    3: '三次加载'
+const onFloatFixed = (num1, num2) => {
+    return (num1 - num2).toFixed(2)
 }
 
 const fetchData = async () => {
-    const rawData = await apiFetchTbsData({ params: { category: 'performance', pageSize, page } })
-    console.log(resource.value)
+    const rawData = await apiFetchTbsData({ params: { category: 'timingDev-1', pageSize, page } })
     rawData.list.forEach((item) => {
         if (!resource.value[`${item.brandName}(${item.androidVersion})`]) return
         item.isTbs
@@ -83,112 +106,197 @@ const fetchData = async () => {
     onChartRender()
 }
 
-const onChartOptionBuild = (type, data, step) => {
+const onTimingSeriesBuild = (performanceWithTbs, performanceWithoutTbs, publicSeriesOption) => {
+    return [
+        {
+            ...publicSeriesOption,
+            name: 'Fetch Start',
+            color: '#b7eb8f',
+            data: [
+                onFloatFixed(performanceWithoutTbs.fetchStart, 0),
+                onFloatFixed(performanceWithTbs.fetchStart, 0)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Fetch Event and HTTP Cache',
+            color: '#fff566',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.domainLookupStart,
+                    performanceWithoutTbs.fetchStart
+                ),
+                onFloatFixed(performanceWithTbs.domainLookupStart, performanceWithTbs.fetchStart)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'DNS',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.domainLookupEnd,
+                    performanceWithoutTbs.domainLookupStart
+                ),
+                onFloatFixed(
+                    performanceWithTbs.domainLookupEnd,
+                    performanceWithTbs.domainLookupStart
+                )
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'TCP',
+            data: [
+                onFloatFixed(performanceWithoutTbs.connectEnd, performanceWithoutTbs.connectStart),
+                onFloatFixed(performanceWithTbs.connectEnd, performanceWithTbs.connectStart)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Before Request',
+            color: '#EBEBEB',
+            data: [
+                onFloatFixed(performanceWithoutTbs.requestStart, performanceWithoutTbs.connectEnd),
+                onFloatFixed(performanceWithTbs.requestStart, performanceWithTbs.connectEnd)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Request',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.responseStart,
+                    performanceWithoutTbs.requestStart
+                ),
+                onFloatFixed(performanceWithTbs.responseStart, performanceWithTbs.requestStart)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Response',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.responseEnd,
+                    performanceWithoutTbs.responseStart
+                ),
+                onFloatFixed(performanceWithTbs.responseEnd, performanceWithTbs.responseStart)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Vue Processing',
+            color: '#efdbff',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.domInteractive,
+                    performanceWithoutTbs.responseEnd
+                ),
+                onFloatFixed(performanceWithTbs.domInteractive, performanceWithTbs.responseEnd)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'DOM Process',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.domComplete,
+                    performanceWithoutTbs.domInteractive
+                ),
+                onFloatFixed(performanceWithTbs.domComplete, performanceWithTbs.domInteractive)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Before Load',
+            color: '#EBEBEB',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.loadEventStart,
+                    performanceWithoutTbs.domComplete
+                ),
+                onFloatFixed(performanceWithTbs.loadEventStart, performanceWithTbs.domComplete)
+            ]
+        },
+        {
+            ...publicSeriesOption,
+            name: 'Load',
+            color: '#a0d911',
+            data: [
+                onFloatFixed(
+                    performanceWithoutTbs.loadEventEnd,
+                    performanceWithoutTbs.loadEventStart
+                ),
+                onFloatFixed(performanceWithTbs.loadEventEnd, performanceWithTbs.loadEventStart)
+            ]
+        },
+        {
+            type: 'bar',
+            emphasis: {
+                focus: 'series'
+            },
+            color: '#85a5ff',
+            name: 'First Paint',
+            data: [
+                onFloatFixed(performanceWithoutTbs['first-paint'], 0),
+                onFloatFixed(performanceWithTbs['first-paint'], 0)
+            ]
+        },
+        {
+            type: 'bar',
+            emphasis: {
+                focus: 'series'
+            },
+            color: '#b37feb',
+            name: 'First Contentful Paint',
+            data: [
+                onFloatFixed(performanceWithoutTbs['first-contentful-paint'], 0),
+                onFloatFixed(performanceWithTbs['first-contentful-paint'], 0)
+            ]
+        }
+    ]
+}
+
+const onChartOptionBuild = (type, data) => {
     const performanceWithTbs = data.dataWithTBS.performance
         ? JSON.parse(data.dataWithTBS.performance)
         : null
     const performanceWithoutTbs = data.dataWithoutTBS.performance
         ? JSON.parse(data.dataWithoutTBS.performance)
         : null
-    const title = type
-        ? {
-              text: titleTextMap[step]
-          }
-        : { text: '' }
-    const dataset = {
-        dimensions: ['dimension', 'TBS', 'Native'],
-        source: type
-            ? [
-                  {
-                      dimension: 'DOM',
-                      TBS: performanceWithTbs
-                          ? (
-                                performanceWithTbs.domContentLoadedEventEnd -
-                                performanceWithTbs.domInteractive
-                            ).toFixed(2)
-                          : 0,
-                      Native: performanceWithoutTbs
-                          ? (
-                                performanceWithoutTbs.domContentLoadedEventEnd -
-                                performanceWithoutTbs.domInteractive
-                            ).toFixed(2)
-                          : 0
-                  },
-                  {
-                      dimension: 'Request',
-                      TBS: performanceWithTbs
-                          ? (
-                                performanceWithTbs.responseEnd - performanceWithTbs.requestStart
-                            ).toFixed(2)
-                          : 0,
-                      Native: performanceWithoutTbs
-                          ? (
-                                performanceWithoutTbs.responseEnd -
-                                performanceWithoutTbs.requestStart
-                            ).toFixed(2)
-                          : 0
-                  },
-                  {
-                      dimension: 'Connect',
-                      TBS: performanceWithTbs
-                          ? (performanceWithTbs.connectEnd - performanceWithTbs.fetchStart).toFixed(
-                                2
-                            )
-                          : 0,
-                      Native: performanceWithoutTbs
-                          ? (
-                                performanceWithoutTbs.connectEnd - performanceWithoutTbs.fetchStart
-                            ).toFixed(2)
-                          : 0
-                  }
-              ]
-            : [
-                  {
-                      dimension: 'Total',
-                      TBS: performanceWithTbs
-                          ? performanceWithTbs.domContentLoadedEventEnd.toFixed(2)
-                          : 0,
-                      Native: performanceWithoutTbs
-                          ? performanceWithoutTbs.domContentLoadedEventEnd.toFixed(2)
-                          : 0
-                  },
-                  {
-                      dimension: 'Pre-DOM',
-                      TBS: performanceWithTbs
-                          ? (
-                                performanceWithTbs.domInteractive - performanceWithTbs.responseEnd
-                            ).toFixed(2)
-                          : 0,
-                      Native: performanceWithoutTbs
-                          ? (
-                                performanceWithoutTbs.domInteractive -
-                                performanceWithoutTbs.responseEnd
-                            ).toFixed(2)
-                          : 0
-                  }
-              ]
+    const publicSeriesOption = {
+        type: 'bar',
+        stack: 'time',
+        emphasis: {
+            focus: 'series'
+        }
     }
+    const series = type
+        ? onTimingSeriesBuild(performanceWithTbs, performanceWithoutTbs, publicSeriesOption)
+        : [
+              {
+                  ...publicSeriesOption,
+                  name: 'Total',
+                  color: '#76CCCC',
+                  data: [
+                      onFloatFixed(performanceWithoutTbs.loadEventEnd, 0),
+                      onFloatFixed(performanceWithTbs.loadEventEnd, 0)
+                  ]
+              }
+          ]
     return {
         ...basisChartOption,
-        dataset,
-        title
+        series
     }
 }
 
-const onChartBuild = (data, brand, step) => {
-    const container = document.getElementById(`chart-${brand}-${step}`)
-    const chartInstance = echarts.init(container)
-    chartInstance.setOption(onChartOptionBuild(1, data, step))
-    const containerTotal = document.getElementById(`chart-${brand}-${step}-total`)
-    const chartInstanceTotal = echarts.init(containerTotal)
-    chartInstanceTotal.setOption(onChartOptionBuild(0, data, step))
+const onChartBuild = (data, step) => {
+    chartInstance[`chart${step}`].setOption(onChartOptionBuild(1, data))
+    chartInstanceTotal[`chart${step}`].setOption(onChartOptionBuild(0, data))
 }
 
 const onChartRender = () => {
-    brandCategory.forEach((brand) => {
-        resource.value[brand].forEach((item, index) => {
-            onChartBuild(item, brand, index + 1)
-        })
+    resource.value[brandDisplay.value].forEach((item, index) => {
+        onChartBuild(item, index + 1)
     })
 }
 
@@ -211,26 +319,30 @@ const dataInit = () => {
     })
 }
 
+const chartInit = (mount) => {
+    for (let i = 1; i <= mount; i++) {
+        chartInstance[`chart${i}`] = echarts.init(document.getElementById(`chart-${i}`))
+        chartInstanceTotal[`chart${i}`] = echarts.init(document.getElementById(`chart-${i}-total`))
+    }
+}
+
 dataInit()
 
 onMounted(() => {
+    chartInit(3)
     fetchData()
 })
 </script>
 
 <style lang="less" scoped>
 .chart-wrapper {
-    height: 3.6rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     .chart {
-        width: 30%;
-        height: 100%;
+        width: 100%;
+        height: 3.6rem;
         position: relative;
     }
-}
-.total {
-    height: 2.4rem;
+    .total {
+        height: 1.8rem;
+    }
 }
 </style>

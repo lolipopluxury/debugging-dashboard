@@ -4,4 +4,61 @@ export const es6Category = 'Destructuring in objects,Destructuring in arrays,Spr
 
 // vivo X7(5) HUAWEI P8max(6)
 // export const brandCategory = 'vivo X7(5),HUAWEI P8max(6),vivo X9(7),MI 6X(8),JSN-AL00(8),MI 6X(9),Mi 10(10),V1838A(10),Mi 10 Pro(11),M2012K11AC(12),2201123C(13)'.split(',')
-export const brandCategory = 'Mi 10(10)'.split(',')
+export const brandCategory = [
+    // 'HUAWEI P8max(6)',
+    'Redmi 5 Plus(7)',
+    'MI 6X(8)',
+    'MI 6X(9)',
+    'V1838A(10)', 'COL-AL10(10)', 'HMA-AL00(10)',
+    'Mi 10 Pro(11)',
+    'M2012K11AC(12)',
+    'GM1900(12)',
+    'M2012K11C(13)', '2201123C(13)'
+]
+
+export const deviceOptions = [
+    {
+        label: '红米5plus(安卓7)',
+        value: 0
+    },
+    {
+        label: '小米6x(安卓8)',
+        value: 1
+    },
+    {
+        label: '小米6x(安卓9)',
+        value: 2
+    },
+    {
+        label: 'VIVOX27(安卓10)',
+        value: 3
+    },
+    {
+        label: '荣耀10(安卓10)',
+        value: 4
+    },
+    {
+        label: 'mate 20(安卓10)',
+        value: 5
+    },
+    {
+        label: '小米10pro(安卓11)',
+        value: 6
+    },
+    {
+        label: 'Redmi K40(安卓12)',
+        value: 7
+    },
+    {
+        label: '一加7pro(安卓12)',
+        value: 8
+    },
+    {
+        label: '小米11(安卓13)',
+        value: 9
+    },
+    {
+        label: '小米12(安卓13)',
+        value: 10
+    }
+]
