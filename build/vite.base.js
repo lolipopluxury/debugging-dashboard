@@ -6,7 +6,6 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 
 import ElementPlus from 'unplugin-element-plus/vite'
-import ModernizrWebpackPlugin from 'modernizr-webpack-plugin'
 
 const __filename = fileURLToPath(import.meta.url)
 
@@ -19,7 +18,6 @@ export default defineConfig({
         ElementPlus({
             useSource: true,
         }),
-        ModernizrWebpackPlugin()
     ],
     resolve: {
         alias: {

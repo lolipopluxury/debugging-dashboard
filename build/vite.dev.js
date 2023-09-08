@@ -1,22 +1,28 @@
 import { defineConfig } from "vite";
 import { getLocalIP } from './utils'
 
-// const host = getLocalIP()
-const host = '127.0.0.1'
+const useLocalHost = false
+const useLocalProxy = false
+const useProxyRewrite = false
+
+const host = useLocalHost ? '127.0.0.1' : getLocalIP()
+const proxyTarget = useLocalProxy ? 'http://172.16.26.234:3000' : 'https://api.weizhipin.com'
 
 let port = 8090
 
-export default defineConfig({
+const config = {
     server: {
         host,
         port,
         proxy: {
             '/api': {
-                target: 'https://api.weizhipin.com',
-                // target: 'http://172.16.26.234:3000',
+                target: proxyTarget,
                 changeOrigin: true,
-                // rewrite: (path) => path.replace(/^\/api/, '')
             },
         },
     },
-});
+}
+
+useProxyRewrite && (config.server.proxy['/api'].rewrite = (path) => path.replace(/^\/api/, ''))
+
+export default defineConfig(config);
