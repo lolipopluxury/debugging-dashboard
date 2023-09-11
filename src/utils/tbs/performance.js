@@ -1,6 +1,4 @@
-const onFloatFixed = (num1, num2) => {
-    return (num1 - num2).toFixed(2)
-}
+const onFloatFixed = (num1, num2) => (num1 - num2).toFixed(2)
 
 export function useLineChartMethods() {
     const basicChartOption = {
@@ -207,7 +205,7 @@ export function useLineChartMethods() {
 export function useStackChartMethods() {
     const basicChartOption = {
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
         },
         legend: {
             data: ['TBS', 'Native']
@@ -228,6 +226,7 @@ export function useStackChartMethods() {
                 'TCP',
                 'Before Request',
                 'Request',
+                'Response',
                 'Vue Processing',
                 'DOM Process',
                 'Before Load',
@@ -235,7 +234,7 @@ export function useStackChartMethods() {
             ]
         },
         yAxis: {
-            type: 'value'
+            type: 'value',
         },
     }
     const onTimingSeriesBuild = (performanceWithTbs, performanceWithoutTbs) => {
@@ -243,7 +242,6 @@ export function useStackChartMethods() {
             {
                 name: 'TBS',
                 type: 'line',
-                stack: 'Total',
                 data: [
                     onFloatFixed(performanceWithTbs.fetchStart, 0),
                     onFloatFixed(performanceWithTbs.domainLookupStart, performanceWithTbs.fetchStart),
@@ -265,7 +263,6 @@ export function useStackChartMethods() {
             {
                 name: 'Native',
                 type: 'line',
-                stack: 'Total',
                 data: [
                     onFloatFixed(performanceWithoutTbs.fetchStart, 0),
                     onFloatFixed(performanceWithoutTbs.domainLookupStart, performanceWithoutTbs.fetchStart),

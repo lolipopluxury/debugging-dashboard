@@ -21,18 +21,15 @@
             </el-radio-group>
             <div class="chart-wrapper">
                 <el-text tag="b" size="large" type="primary">首次加载</el-text>
-                <div class="chart" :id="`chart-1-line`" v-show="chartType === 'line'"></div>
-                <div class="chart" :id="`chart-1-stack`" v-show="chartType === 'stack'"></div>
+                <div class="chart" id="chart-1"></div>
             </div>
             <div class="chart-wrapper">
                 <el-text tag="b" size="large" type="primary">二次加载</el-text>
-                <div class="chart" :id="`chart-2-line`" v-show="chartType === 'line'"></div>
-                <div class="chart" :id="`chart-2-stack`" v-show="chartType === 'stack'"></div>
+                <div class="chart" id="chart-2"></div>
             </div>
             <div class="chart-wrapper">
                 <el-text tag="b" size="large" type="primary">三次加载</el-text>
-                <div class="chart" :id="`chart-3-line`" v-show="chartType === 'line'"></div>
-                <div class="chart" :id="`chart-4-stack`" v-show="chartType === 'stack'"></div>
+                <div class="chart" id="chart-3"></div>
             </div>
         </div>
     </template>
@@ -59,12 +56,9 @@ const brandDisplay = computed(() => brandCategory[currentDevice.value])
 
 const chartType = ref('line')
 const chartInstance = {
-    chart1line: null,
-    chart2line: null,
-    chart3line: null,
-    chart1stack: null,
-    chart2stack: null,
-    chart3stack: null,
+    chart1: null,
+    chart2: null,
+    chart3: null,
 }
 
 const fetchData = async () => {
@@ -83,9 +77,10 @@ const fetchData = async () => {
 
 const onChartRender = () => {
     const currentData = resource.value[brandDisplay.value]
+    const method = chartType.value === 'line' ? lineChartMethods.onChartOptionBuild : stackChartMethods.onChartOptionBuild
     currentData.forEach((item, index) => {
-        chartInstance[`chart${index + 1}line`].setOption(lineChartMethods.onChartOptionBuild(item))
-        chartInstance[`chart${index + 1}stack`].setOption(stackChartMethods.onChartOptionBuild(item))
+        chartInstance[`chart${index + 1}`].clear()
+        chartInstance[`chart${index + 1}`].setOption(method(item))
     })
 }
 
@@ -110,8 +105,7 @@ const dataInit = () => {
 
 const chartInit = (mount) => {
     for (let i = 1; i <= mount; i++) {
-        chartInstance[`chart${i}line`] = echarts.init(document.getElementById(`chart-${i}-line`))
-        chartInstance[`chart${i}stack`] = echarts.init(document.getElementById(`chart-${i}-stack`))
+        chartInstance[`chart${i}`] = echarts.init(document.getElementById(`chart-${i}`))
     }
 }
 
